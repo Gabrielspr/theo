@@ -1,0 +1,249 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para Theo, Meu Amor Eterno</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #f5e1e1, #e8b4b8);
+      color: #333;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 3rem;
+      color: #b83b5e;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+    p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin: 15px 0;
+    }
+    .polaroid {
+      position: fixed;
+      background: #fff;
+      padding: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transform: rotate(-5deg);
+      width: 150px;
+      height: 180px;
+    }
+    .polaroid img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+    }
+    .polaroid p {
+      margin: 5px 0;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    .polaroid-left { left: 20px; }
+    .polaroid-right { right: 20px; }
+    .polaroid:nth-child(odd) { transform: rotate(5deg); }
+    .floating-game {
+      position: absolute;
+      width: 100px;
+      animation: float 10s ease-in-out infinite;
+      opacity: 0.8;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-50px) rotate(10deg); }
+    }
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .gallery img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border: 5px solid #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    .proposal {
+      margin-top: 50px;
+      font-size: 2.5rem;
+      color: #b83b5e;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 20px 40px;
+      font-size: 2rem;
+      color: #fff;
+      background: #b83b5e;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s;
+    }
+    .button:hover {
+      transform: scale(1.1);
+    }
+    .stop-button {
+      display: inline-block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      color: #fff;
+      background: #6b3e4f;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s;
+    }
+    .stop-button:hover {
+      transform: scale(1.05);
+    }
+    .honest-mention {
+      margin-top: 40px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+    }
+    .honest-mention h2 {
+      color: #b83b5e;
+      font-size: 2rem;
+    }
+    .honest-mention p {
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Para Theo, Meu Amor Eterno</h1>
+    <audio id="bgMusic" autoplay loop>
+      <source src="theo.mp3" type="audio/mpeg">
+      Seu navegador não suporta o elemento de áudio.
+    </audio>
+    <button class="stop-button" onclick="toggleMusic()">Parar Música</button>
+    <p>Theo, meu amor, este site é para você, um presente antecipado para o Dia da Namorada, porque meu coração não pôde esperar até 1º de agosto. Cada palavra aqui é um pedaço de mim, uma tentativa de expressar o quanto você significa. Você é meu tudo, e eu quero gritar isso para o universo.</p>
+    
+    <p>Theo, você é o homem mais incrível do mundo, tudo que eu poderia desejar. Carinhoso, amável, você se preocupa genuinamente comigo e com meu futuro. Às vezes, ainda acho estranho esse lance de namoro, tão puro, tão nosso, mas amo cada segundo disso. Você me faz querer ser minha melhor versão, correr atrás dos meus sonhos, não por você, mas por mim mesmo.</p>
+    
+    <p>Eu amo cada detalhe seu, Theo. Não só sua beleza – quantas vezes já te disseram que é lindo, que tem uma voz encantadora? Meu amor vai além disso. Amo sua coragem, sua determinação, a força que me orgulha todos os dias. Seus olhos me prendem mais que um céu estrelado, sua voz é uma melodia que me guia como a uma sereia. Eu me perco em você, e quero descobrir cada pedaço seu, me refazer no processo, ser seu.</p>
+    
+    <p>Nunca amei assim, com tanta pureza e intensidade. Você mudou minha vida em tão pouco tempo, Theo. Não acredito em almas gêmeas, mas você me amarrou com aquela corda vermelha do destino, e agora estou presa a você para sempre. Quero acordar ao seu lado, ser sua esposa, viver cada dia com você até o fim.</p>
+    
+    <div class="honest-mention">
+      <h2>Menção Honrosa: Nossas Palavras</h2>
+      <p><strong>Ethel para Theo:</strong> "Theo, eu não sei como te dizer isso, mas teus olhos me encantam mais que o céu estrelado da noite, sua voz é tão apaixonante quanto a de uma sereia... eu me perco em você tal qual um explorador sem mapa. Eu quero descobrir tudo em você, quero ter cada pedaço de você só pra mim..."</p>
+      <p><strong>Theo para Ethel:</strong> "Desde que você chegou, Ethel, tudo ficou mais suave. Meus dias deixaram de ser só dias, viraram abrigo, viraram poesia em silêncio. Você não é só parte da minha vida, é o que faz tudo nela ter sentido. É como se você fosse a pausa no caos, aquele instante de respiro que vem depois da tempestade."</p>
+    </div>
+    
+    <div class="gallery">
+      <img src="b_1.jpg" alt="Momento especial 1">
+      <img src="b_2.jpg" alt="Momento especial 2">
+      <img src="b_3.jpg" alt="Momento especial 3">
+    </div>
+    
+    <div class="proposal">VOCÊ QUER CASAR COMIGO?</div>
+    <button class="button" onclick="alert('Meu coração diz SIM para sempre, Theo!')">SIM!</button>
+  </div>
+  
+  <!-- Polaroids -->
+  <div class="polaroid polaroid-left" style="top: 100px;">
+    <img src="p_1.jpg" alt="Polaroid 1">
+    <p>Momentos com você</p>
+  </div>
+  <div class="polaroid polaroid-left" style="top: 300px;">
+    <img src="p_2.jpg" alt="Polaroid 2">
+    <p>Nosso amor</p>
+  </div>
+  <div class="polaroid polaroid-right" style="top: 150px;">
+    <img src="p_3.jpg" alt="Polaroid 3">
+    <p>Eternamente seu</p>
+  </div>
+  <div class="polaroid polaroid-right" style="top: 350px;">
+    <img src="p_4.jpg" alt="Polaroid 4">
+    <p>Meu Theo</p>
+  </div>
+  
+  <!-- Floating game images -->
+  <img class="floating-game" style="top: 100px; left: 100px;" src="jogo_1.webp" alt="Jogo 1">
+  <img class="floating-game" style="top: 200px; right: 150px;" src="jogo_2.webp" alt="Jogo 2">
+  <img class="floating-game" style="top: 300px; left: 200px;" src="jogo_3.webp" alt="Jogo 3">
+  
+  <script>
+    // Randomize floating game images' starting positions
+    const floatingImages = document.querySelectorAll('.floating-game');
+    floatingImages.forEach(img => {
+      img.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+      img.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+    });
+
+    // Toggle music play/pause
+    function toggleMusic() {
+      const music = document.getElementById('bgMusic');
+      const button = document.querySelector('.stop-button');
+      if (music.paused) {
+        music.play();
+        button.textContent = 'Parar Música';
+      } else {
+        music.pause();
+        button.textContent = 'Tocar Música';
+      }
+    }
+  </script>
+</body>
+</html>
