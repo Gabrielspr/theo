@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -177,18 +138,15 @@
       Seu navegador não suporta o elemento de áudio.
     </audio>
     <button class="stop-button" onclick="toggleMusic()">Parar Música</button>
-    <p>Theo, meu amor, este site é para você, um presente antecipado para o Dia da Namorada, porque meu coração não pôde esperar até 1º de agosto. Cada palavra aqui é um pedaço de mim, uma tentativa de expressar o quanto você significa. Você é meu tudo, e eu quero gritar isso para o universo.</p>
-    
-    <p>Theo, você é o homem mais incrível do mundo, tudo que eu poderia desejar. Carinhoso, amável, você se preocupa genuinamente comigo e com meu futuro. Às vezes, ainda acho estranho esse lance de namoro, tão puro, tão nosso, mas amo cada segundo disso. Você me faz querer ser minha melhor versão, correr atrás dos meus sonhos, não por você, mas por mim mesmo.</p>
-    
-    <p>Eu amo cada detalhe seu, Theo. Não só sua beleza – quantas vezes já te disseram que é lindo, que tem uma voz encantadora? Meu amor vai além disso. Amo sua coragem, sua determinação, a força que me orgulha todos os dias. Seus olhos me prendem mais que um céu estrelado, sua voz é uma melodia que me guia como a uma sereia. Eu me perco em você, e quero descobrir cada pedaço seu, me refazer no processo, ser seu.</p>
-    
-    <p>Nunca amei assim, com tanta pureza e intensidade. Você mudou minha vida em tão pouco tempo, Theo. Não acredito em almas gêmeas, mas você me amarrou com aquela corda vermelha do destino, e agora estou presa a você para sempre. Quero acordar ao seu lado, ser sua esposa, viver cada dia com você até o fim.</p>
+    <p>Theo, meu amor, este site é para você...</p>
+    <p>Theo, você é o homem mais incrível...</p>
+    <p>Eu amo cada detalhe seu, Theo...</p>
+    <p>Nunca amei assim, com tanta pureza...</p>
     
     <div class="honest-mention">
       <h2>Menção Honrosa: Nossas Palavras</h2>
-      <p><strong>Ethel para Cedric :</strong> "Cedric, eu não sei como te dizer isso, mas teus olhos me encantam mais que o céu estrelado da noite, sua voz é tão apaixonante quanto a de uma sereia... eu me perco em você tal qual um explorador sem mapa. Eu quero descobrir tudo em você, quero ter cada pedaço de você só pra mim..."</p>
-      <p><strong>Cedric para Ethel:</strong> "Desde que você chegou, Ethel, tudo ficou mais suave. Meus dias deixaram de ser só dias, viraram abrigo, viraram poesia em silêncio. Você não é só parte da minha vida, é o que faz tudo nela ter sentido. É como se você fosse a pausa no caos, aquele instante de respiro que vem depois da tempestade."</p>
+      <p><strong>Ethel para Cedric :</strong> "Cedric, eu não sei como te dizer..."</p>
+      <p><strong>Cedric para Ethel:</strong> "Desde que você chegou, Ethel..."</p>
     </div>
     
     <div class="gallery">
@@ -198,7 +156,7 @@
     </div>
     
     <div class="proposal">VOCÊ QUER CASAR COMIGO?</div>
-    <button class="button" onclick="alert('Meu coração diz SIM para sempre, Cedric!')">SIM!</button>
+    <button class="button" onclick="pedirSenha()">SIM!</button>
   </div>
   
   <!-- Polaroids -->
@@ -225,14 +183,21 @@
   <img class="floating-game" style="top: 300px; left: 200px;" src="jogo_3.webp" alt="Jogo 3">
   
   <script>
-    // Randomize floating game images' starting positions
+    function pedirSenha() {
+      const senha = prompt("Digite a senha para continuar:");
+      if (senha === "theozinho") {
+        window.location.href = "site2.html";
+      } else {
+        alert("Senha incorreta! 💔");
+      }
+    }
+
     const floatingImages = document.querySelectorAll('.floating-game');
     floatingImages.forEach(img => {
       img.style.top = Math.random() * (window.innerHeight - 100) + 'px';
       img.style.left = Math.random() * (window.innerWidth - 100) + 'px';
     });
 
-    // Toggle music play/pause
     function toggleMusic() {
       const music = document.getElementById('bgMusic');
       const button = document.querySelector('.stop-button');
