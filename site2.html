@@ -16,349 +16,126 @@
     const { useEffect, useMemo, useRef, useState } = React;
 
     function SegundoMesCeddyTheo() {
-      // ------- boot / áudio states
       const [bootDone, setBootDone] = useState(false);
-      const [canPlayBoot, setCanPlayBoot] = useState(false);
-      const [muted, setMuted] = useState(true); // garante autoplay do vídeo de boot
+      const [muted, setMuted] = useState(true);
       const [showMusicModal, setShowMusicModal] = useState(false);
       const [selectedMusic, setSelectedMusic] = useState(null);
 
       const videoRef = useRef(null);
       const audioRef = useRef(null);
 
-      // ------- listas
-      const polas = useMemo(
-        () => [
-          { src: "/pola_1.png", legend: "02 meses do nosso universo particular" },
-          { src: "/pola_2.webp", legend: "Riso fácil, abraço quente" },
-          { src: "/pola_3.jpeg", legend: "Nossas ruas, nossos passos" },
-          { src: "/pola_4.jpeg", legend: "Porto seguro no teu colo" },
-          { src: "/pola_5.jpeg", legend: "Theo + Ceddy = ♡" },
-        ],
-        []
-      );
+      const polas = useMemo(() => [
+        { src: "pola_1.png", legend: "02 meses do nosso universo particular" },
+        { src: "pola_2.webp", legend: "Riso fácil, abraço quente" },
+        { src: "pola_3.jpeg", legend: "Nossas ruas, nossos passos" },
+        { src: "pola_4.jpeg", legend: "Porto seguro no teu colo" },
+        { src: "pola_5.jpeg", legend: "Theo + Ceddy = ♡" },
+      ], []);
 
-      const voa = useMemo(
-        () => [
-          { src: "/voa_1.png", alt: "voando 1", style: "left-6 top-24 animation-delay-[0s]" },
-          { src: "/voa_2.png", alt: "voando 2", style: "left-1/2 -translate-x-1/2 top-10 animation-delay-[2s]" },
-          { src: "/voa_3.png", alt: "voando 3", style: "right-6 top-32 animation-delay-[4s]" },
-        ],
-        []
-      );
+      const musicOptions = useMemo(() => [
+        { file: "musga_1.mp3", label: "Música 1 — Calmaria" },
+        { file: "musga_2.mp3", label: "Música 2 — Fogueirinha" },
+        { file: "musga_3.mp3", label: "Música 3 — Céu Estrelado" },
+      ], []);
 
-      const musicOptions = useMemo(
-        () => [
-          { file: "musga_1.mp3", label: "Música 1 — Calmaria" },
-          { file: "musga_2.mp3", label: "Música 2 — Fogueirinha" },
-          { file: "musga_3.mp3", label: "Música 3 — Céu Estrelado" },
-        ],
-        []
-      );
-
-      // ------- comportamento do vídeo de boot
       useEffect(() => {
         const v = videoRef.current;
         if (!v) return;
-
-        const onEnded = () => {
+        v.addEventListener("ended", () => {
           setBootDone(true);
-          setShowMusicModal(true); // abre seleção de música ao terminar o boot
-        };
-        const onCanPlay = () => setCanPlayBoot(true);
-
-        v.addEventListener("ended", onEnded);
-        v.addEventListener("canplay", onCanPlay);
-
-        // tentar autoplay
+          setShowMusicModal(true);
+        });
         (async () => {
-          try {
-            await v.play();
-          } catch {
+          try { await v.play(); }
+          catch {
             setMuted(true);
             try { await v.play(); } catch {}
           }
         })();
-
-        return () => {
-          v.removeEventListener("ended", onEnded);
-          v.removeEventListener("canplay", onCanPlay);
-        };
       }, []);
 
-      // ------- quando escolher a música
       useEffect(() => {
         if (!selectedMusic || !audioRef.current) return;
         const a = audioRef.current;
-        a.src = `/${selectedMusic}`;
+        a.src = selectedMusic;
         a.volume = 0.7;
-        // reprodução precisa de gesto do usuário — a escolha no modal é esse gesto
-        a.play().catch(() => {
-          // caso algo falhe, fica silencioso e não quebra a página
-          console.warn("Não foi possível iniciar o áudio imediatamente.");
-        });
+        a.play().catch(() => {});
       }, [selectedMusic]);
 
-      // ------- testes rápidos (dev) — não alteram UI
-      useEffect(() => {
-        // Testes simples para garantir estrutura básica
-        console.assert(polas.length === 5, "Deve haver 5 polaroids");
-        console.assert(voa.length === 3, "Devem haver 3 imagens voadoras");
-        console.assert(musicOptions.length === 3, "Devem haver 3 opções de música");
-      }, [polas, voa, musicOptions]);
-
       return (
-        <div
-          className="relative min-h-screen w-full overflow-hidden bg-gradient-to-b from-slate-950 via-stone-900 to-amber-950 text-stone-100"
-          data-testid="app-root"
-        >
-          {/* Layer glow */}
-          <div className="pointer-events-none fixed -top-24 -left-24 h-80 w-80 rounded-full bg-amber-500/10 blur-3xl" />
-          <div className="pointer-events-none fixed -bottom-24 -right-24 h-96 w-96 rounded-full bg-orange-400/10 blur-3xl" />
-
-          {/* BOOT */}
+        <div className="min-h-screen w-full bg-gradient-to-b from-slate-950 via-stone-900 to-amber-950 text-stone-100">
           {!bootDone && (
-            <div className="fixed inset-0 z-50 grid place-items-center bg-black/95" data-testid="boot-layer">
-              <div className="mx-auto w-full max-w-3xl px-4">
-                <div className="overflow-hidden rounded-2xl ring-1 ring-amber-500/20 shadow-2xl">
-                  <video
-                    ref={videoRef}
-                    src="/cethel.mp4"
-                    className="h-full w-full bg-black"
-                    playsInline
-                    muted={muted}
-                    controls={false}
-                    onEnded={() => {
-                      setBootDone(true);
-                      setShowMusicModal(true);
-                    }}
-                    data-testid="boot-video"
-                  />
-                </div>
-
-                <div className="mt-4 flex items-center justify-between text-xs text-amber-200/80">
-                  <p className="tracking-widest">BOOT • C❤THEL • v2.0</p>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setMuted((m) => !m)}
-                      className="rounded-full px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 ring-1 ring-amber-500/30 transition"
-                      data-testid="mute-toggle"
-                    >
-                      {muted ? "Ligar som" : "Silenciar"}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setBootDone(true);
-                        setShowMusicModal(true);
-                      }}
-                      className="rounded-full px-3 py-1 bg-amber-600/20 hover:bg-amber-600/30 ring-1 ring-amber-500/30 transition"
-                      data-testid="boot-skip"
-                    >
-                      Pular
-                    </button>
-                  </div>
-                </div>
-
-                {!canPlayBoot && (
-                  <p className="mt-2 text-center text-amber-200/70 text-sm">
-                    Se o vídeo não iniciar, clique em <span className="font-medium">Pular</span> para entrar.
-                  </p>
-                )}
-              </div>
+            <div className="fixed inset-0 z-50 grid place-items-center bg-black/90">
+              <video ref={videoRef} src="cethel.mp4" className="max-w-3xl w-full" muted={muted} playsInline />
+              <button onClick={() => {setBootDone(true); setShowMusicModal(true);}} className="mt-4 px-4 py-2 bg-amber-600 rounded-lg">Pular</button>
             </div>
           )}
 
-          {/* MODAL DE MÚSICA (pop-up) */}
           {showMusicModal && (
-            <div className="fixed inset-0 z-40 grid place-items-center bg-black/70 backdrop-blur-sm" data-testid="music-modal">
-              <div className="w-[92vw] max-w-md rounded-2xl bg-stone-900 ring-1 ring-amber-500/20 p-6 shadow-2xl">
-                <h2 className="text-lg font-semibold text-amber-100">Escolha a trilha do nosso cantinho</h2>
-                <p className="mt-1 text-sm text-amber-100/80">Selecione uma música para tocar de fundo (você pode trocar depois).</p>
-
-                <div className="mt-4 grid gap-3" data-testid="music-options">
-                  {musicOptions.map((m) => (
-                    <button
-                      key={m.file}
-                      onClick={() => {
-                        setSelectedMusic(m.file);
-                        setShowMusicModal(false);
-                      }}
-                      className="w-full rounded-xl px-4 py-2 text-left bg-amber-600/20 hover:bg-amber-600/30 transition ring-1 ring-amber-500/30"
-                    >
-                      {m.label}
-                      <span className="ml-2 text-xs opacity-70 font-mono">/{m.file}</span>
-                    </button>
+            <div className="fixed inset-0 z-40 grid place-items-center bg-black/70">
+              <div className="bg-stone-900 p-6 rounded-2xl max-w-md w-[92vw]">
+                <h2 className="text-lg font-semibold">Escolha a música</h2>
+                <div className="mt-4 grid gap-3">
+                  {musicOptions.map(m => (
+                    <button key={m.file} onClick={() => {setSelectedMusic(m.file); setShowMusicModal(false);}} className="bg-amber-600/20 px-4 py-2 rounded-xl">{m.label}</button>
                   ))}
                 </div>
-
-                <div className="mt-4 flex justify-end gap-3">
-                  <button
-                    onClick={() => setShowMusicModal(false)}
-                    className="rounded-lg px-3 py-1 bg-stone-800 hover:bg-stone-700 transition"
-                  >
-                    Entrar sem música
-                  </button>
-                </div>
               </div>
             </div>
           )}
 
-          {/* AUDIO ELEMENT */}
-          <audio ref={audioRef} loop data-testid="bg-audio" />
+          <audio ref={audioRef} loop />
 
-          {/* Header */}
-          <header className="relative z-10 mx-auto max-w-6xl px-4 py-10">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-orange-200 to-yellow-100">
-                2º mês — Ceddy ♡ Theo
-              </h1>
-              <span className="text-xs md:text-sm text-amber-200/70">Fogueira & Calmaria</span>
-            </div>
-            <p className="mt-2 max-w-2xl text-sm md:text-base text-amber-100/80">
-              Um cantinho feito pra nós, com o calor da fogueira e o sossego de uma noite estrelada. Bem-vinde, meu amor.
-            </p>
+          <header className="p-6 text-center">
+            <h1 className="text-3xl font-bold">2º mês — Ceddy ♡ Theo</h1>
+            <p className="mt-2 text-amber-100/80">Um cantinho feito pra nós, com o calor da fogueira e o sossego de uma noite estrelada.</p>
           </header>
 
-          {/* Background floating images */}
-          <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
-            {voa.map((v, i) => (
-              <img
-                key={i}
-                src={v.src}
-                alt={v.alt}
-                className={`absolute ${v.style} w-24 md:w-32 opacity-70 animate-float-slow`}
-                data-testid={`voa-${i+1}`}
-              />
-            ))}
-          </div>
-
-          {/* Main content */}
-          <main className="relative z-10 mx-auto max-w-6xl px-4" data-testid="main">
-            {/* Mensagem central estendida */}
-            <section className="mt-6 md:mt-10 grid gap-6 md:gap-10 md:grid-cols-3">
-              <div className="md:col-span-2 rounded-2xl p-6 md:p-8 bg-stone-900/70 ring-1 ring-amber-500/10 shadow-xl" data-testid="texto-romantico">
-                <h2 className="text-xl md:text-2xl font-semibold text-amber-100">
-                  Obrigado por ser meu descanso favorito
-                </h2>
-                <p className="mt-3 leading-relaxed text-stone-200/90">
-                  Theo, contigo eu descobri que amor também é silêncio confortável, risada boba e mão que encontra a outra no escuro. Em dois meses, você virou a minha canção tranquila — aquela que toca baixinho, aquece por dentro e faz o mundo desacelerar.
-                </p>
-                <p className="mt-3 leading-relaxed text-stone-200/90">
-                  Gosto de como teu carinho me cobre como um cobertor quentinho, e de como teus olhos têm o brilho exato das brasas quando a noite cai. Com você, até os dias comuns ficam com gosto de feriado, e tudo parece caber no abraço que a gente inventou.
-                </p>
-                <p className="mt-3 leading-relaxed text-stone-200/90">
-                  Obrigado por cuidar de mim, por se deixar cuidar, por existir do jeitinho lindo que você é. Eu celebro cada detalhe: tuas mensagens, tuas manias, o jeito macio com que o mundo fica quando você sorri. Se o universo é vasto, nós somos o nosso endereço preferido nele.
-                </p>
-                <p className="mt-3 leading-relaxed text-stone-200/90">
-                  Escolho você — hoje, amanhã e em cada recomeço. E se o frio aparecer, a gente acende outra fogueira no coração e fica pertinho, ouvindo nossa música tocar.
-                </p>
-              </div>
-
-              <aside className="grid content-start gap-4">
-                <div className="rounded-2xl p-4 bg-amber-900/30 ring-1 ring-amber-500/20">
-                  <p className="text-sm text-amber-100/90">
-                    <span className="font-semibold">Promessa curtinha:</span> continuar sendo teu abraço quente, teu chá das 22h e tua companhia leve.
-                  </p>
-                </div>
-                <div className="rounded-2xl p-4 bg-stone-900/70 ring-1 ring-amber-500/10">
-                  <p className="text-sm text-amber-100/90">
-                    <span className="font-semibold">Nota do Coração do Sistema:</span> relação <span className="font-mono">estável</span>, temperatura <span className="font-mono">aconchego</span>, energia <span className="font-mono">alta</span>.
-                  </p>
-                </div>
-              </aside>
+          <main className="max-w-6xl mx-auto p-4 grid gap-6">
+            <section className="bg-stone-900/70 p-6 rounded-2xl">
+              <h2 className="text-xl font-semibold text-amber-100">Obrigado por ser meu descanso favorito</h2>
+              <p className="mt-3">Theo, contigo eu descobri que amor também é silêncio confortável, risada boba e mão que encontra a outra no escuro...</p>
+              <p className="mt-3">Gosto de como teu carinho me cobre como um cobertor quentinho, e de como teus olhos têm o brilho exato das brasas quando a noite cai...</p>
+              <p className="mt-3">Obrigado por cuidar de mim, por se deixar cuidar, por existir do jeitinho lindo que você é...</p>
+              <p className="mt-3">Escolho você — hoje, amanhã e em cada recomeço...</p>
             </section>
 
-            {/* Faixa poética */}
-            <section className="mt-10 md:mt-16" data-testid="carta">
-              <div className="rounded-3xl p-6 md:p-10 bg-gradient-to-br from-stone-900/70 to-amber-900/30 ring-1 ring-amber-500/10 shadow-2xl">
-                <p className="text-lg md:text-xl leading-relaxed text-amber-50/95">
-                  <span className="block font-semibold">Carta curta para o meu amor:</span>
-                  "Te encontro onde o céu encosta no cobertor e o mundo aprende a sussurrar. Com você, até o silêncio tem brilho — e eu fico, sempre, como quem escolheu a mesma fogueira para atravessar o frio."
-                </p>
-                <p className="mt-4 text-sm text-amber-100/80">— Ceddy, com todo carinho do mundo por Theo</p>
-              </div>
+            <section className="bg-gradient-to-br from-stone-900/70 to-amber-900/30 p-6 rounded-3xl">
+              <p className="text-lg leading-relaxed text-amber-50/95">
+                <span className="block font-semibold">Carta curta para o meu amor:</span>
+                "Te encontro onde o céu encosta no cobertor e o mundo aprende a sussurrar..."
+              </p>
+              <p className="mt-4 text-sm text-amber-100/80">— Ceddy, com todo carinho do mundo por Theo</p>
             </section>
 
-            {/* Galeria Polaroid */}
-            <section className="mt-12 md:mt-20" data-testid="galeria-polaroid">
-              <h3 className="mb-6 text-lg md:text-xl font-semibold text-amber-100">Nossos retratos preferidos</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5 md:gap-6">
+            <section>
+              <h2 className="text-xl font-semibold">Nossos retratos preferidos</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
                 {polas.map((p, i) => (
-                  <figure
-                    key={i}
-                    className={`group relative aspect-[3/4] bg-stone-100 text-stone-900 rounded-xl shadow-2xl overflow-hidden rotate-${[-3,-1,0,2,4][i]} hover:rotate-0 transition-transform duration-500`}
-                    data-testid={`pola-${i+1}`}
-                  >
-                    <img src={p.src} alt={p.legend} className="h-full w-full object-cover" />
-                    <figcaption className="absolute bottom-0 left-0 right-0 bg-stone-50/90 text-center text-xs py-2 font-medium tracking-wide">
-                      {p.legend}
-                    </figcaption>
-                    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-stone-900/40 to-transparent" />
+                  <figure key={i} className="bg-white text-black rounded-xl overflow-hidden">
+                    <img src={p.src} alt={p.legend} className="w-full h-full object-cover" />
+                    <figcaption className="p-2 text-center text-xs">{p.legend}</figcaption>
                   </figure>
                 ))}
               </div>
             </section>
 
-            {/* Agradecimentos fofos */}
-            <section className="mt-12 md:mt-20 grid gap-6 md:grid-cols-3" data-testid="agradecimentos">
-              {[
-                { t: "Por cada mensagem", d: "que chegou como cobertor em dia nublado." },
-                { t: "Pelos teus cuidados", d: "que me lembram de respirar com calma e comer direitinho." },
-                { t: "Pelos nossos planos", d: "mesmo os bobos — eles também constroem o nosso sempre." },
-              ].map((b, i) => (
-                <div key={i} className="rounded-2xl p-6 bg-stone-900/70 ring-1 ring-amber-500/10 shadow-xl">
+            <section className="grid gap-6 md:grid-cols-3">
+              {[{t: "Por cada mensagem", d: "que chegou como cobertor em dia nublado."},
+                {t: "Pelos teus cuidados", d: "que me lembram de respirar com calma e comer direitinho."},
+                {t: "Pelos nossos planos", d: "mesmo os bobos — eles também constroem o nosso sempre."}].map((b, i) => (
+                <div key={i} className="bg-stone-900/70 p-6 rounded-2xl">
                   <h4 className="font-semibold text-amber-100">{b.t}</h4>
-                  <p className="mt-2 text-stone-200/90">{b.d}</p>
+                  <p className="mt-2">{b.d}</p>
                 </div>
               ))}
             </section>
-
-            {/* Rodapé */}
-            <footer className="mt-16 md:mt-24 mb-10 text-center text-sm text-amber-200/80" data-testid="rodape">
-              <p>
-                Feito com carinho por <span className="font-semibold">Ceddy</span> para <span className="font-semibold">Theo</span> — 2º mês ♡
-              </p>
-              <p className="mt-1 text-amber-200/60">Que a nossa fogueira nunca apague; que a calmaria sempre nos encontre.</p>
-            </footer>
           </main>
 
-          {/* Estrelas leves */}
-          <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
-            {Array.from({ length: 60 }).map((_, i) => (
-              <span
-                key={i}
-                className="absolute block h-0.5 w-0.5 rounded-full bg-amber-100/30 animate-twinkle"
-                style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  animationDelay: `${(Math.random() * 8).toFixed(2)}s`,
-                  animationDuration: `${(6 + Math.random() * 8).toFixed(2)}s`,
-                }}
-              />
-            ))}
-          </div>
-
-          {/* CSS inline para animações específicas */}
-          <style>{`
-            @keyframes floatSlow {
-              0% { transform: translateY(0px) rotate(0deg) scale(1); }
-              50% { transform: translateY(-18px) rotate(2deg) scale(1.02); }
-              100% { transform: translateY(0px) rotate(0deg) scale(1); }
-            }
-            .animate-float-slow { animation: floatSlow 9s ease-in-out infinite; }
-            .animation-delay-\[0s\] { animation-delay: 0s; }
-            .animation-delay-\[2s\] { animation-delay: 2s; }
-            .animation-delay-\[4s\] { animation-delay: 4s; }
-
-            @keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.6; } }
-            .animate-twinkle { animation: twinkle var(--twinkle, 8s) ease-in-out infinite; }
-
-            .rotate--3 { transform: rotate(-3deg); }
-            .rotate--1 { transform: rotate(-1deg); }
-            .rotate-0 { transform: rotate(0deg); }
-            .rotate-2 { transform: rotate(2deg); }
-            .rotate-4 { transform: rotate(4deg); }
-          `}</style>
+          <footer className="mt-16 mb-10 text-center text-sm text-amber-200/80">
+            <p>Feito com carinho por <span className="font-semibold">Ceddy</span> para <span className="font-semibold">Theo</span> — 2º mês ♡</p>
+            <p className="mt-1 text-amber-200/60">Que a nossa fogueira nunca apague; que a calmaria sempre nos encontre.</p>
+          </footer>
         </div>
       );
     }
